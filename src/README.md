@@ -5,7 +5,7 @@ tags:
   - provider/aws
 ---
 
-# Component: `cloudtrail`
+# Component: `cloudtrail-bucket`
 
 This component is responsible for provisioning a bucket for storing cloudtrail logs for auditing purposes. It's expected
 to be used alongside
