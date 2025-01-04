@@ -5,5 +5,3 @@ repository:
   description: This component is responsible for provisioning a bucket for storing cloudtrail logs for auditing purposes
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
-
-
