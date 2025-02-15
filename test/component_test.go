@@ -7,49 +7,61 @@ import (
 	"testing"
 
 	"github.com/cloudposse/test-helpers/pkg/atmos"
-	helper "github.com/cloudposse/test-helpers/pkg/atmos/aws-component-helper"
+	helper "github.com/cloudposse/test-helpers/pkg/atmos/component-helper"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestComponent(t *testing.T) {
-	awsRegion := "us-east-2"
+type ComponentSuite struct {
+	helper.TestSuite
+}
 
-	fixture := helper.NewFixture(t, "../", awsRegion, "test/fixtures")
+func (s *ComponentSuite) TestBasic() {
+	const component = "cloudtrail-bucket/basic"
+	const stack = "default-test"
+	const awsRegion = "us-east-2"
 
-	defer fixture.TearDown()
-	fixture.SetUp(&atmos.Options{})
+	defer s.DestroyAtmosComponent(s.T(), component, stack, nil)
+	options, _ := s.DeployAtmosComponent(s.T(), component, stack, nil)
 
-	fixture.Suite("default", func(t *testing.T, suite *helper.Suite) {
-		suite.Test(t, "basic", func(t *testing.T, atm *helper.Atmos) {
+	bucketId := atmos.Output(s.T(), options, "cloudtrail_bucket_id")
+	assert.True(s.T(), strings.HasPrefix(bucketId, "eg-default-ue2-test-cloudtrail-"))
 
-			defer atm.GetAndDestroy("cloudtrail-bucket/basic", "default-test", map[string]interface{}{})
-			component := atm.GetAndDeploy("cloudtrail-bucket/basic", "default-test", map[string]interface{}{})
+	bucketDomainName := atmos.Output(s.T(), options, "cloudtrail_bucket_domain_name")
+	assert.Equal(s.T(), fmt.Sprintf("%s.s3.amazonaws.com", bucketId), bucketDomainName)
 
-			bucketId := atm.Output(component, "cloudtrail_bucket_id")
-			assert.True(t, strings.HasPrefix(bucketId, "eg-default-ue2-test-cloudtrail-"))
+	bucketArn := atmos.Output(s.T(), options, "cloudtrail_bucket_arn")
+	assert.True(s.T(), strings.HasSuffix(bucketArn, bucketId))
 
-			bucketDomainName := atm.Output(component, "cloudtrail_bucket_domain_name")
-			assert.Equal(t, fmt.Sprintf("%s.s3.amazonaws.com", bucketId), bucketDomainName)
+	policy := aws.GetS3BucketPolicy(s.T(), awsRegion, bucketId)
 
-			bucketArn := atm.Output(component, "cloudtrail_bucket_arn")
-			assert.True(t, strings.HasSuffix(bucketArn, bucketId))
+	// Parse bucket policy into map to validate structure
+	var policyMap map[string]interface{}
+	err := json.Unmarshal([]byte(policy), &policyMap)
+	assert.NoError(s.T(), err)
 
-			policy := aws.GetS3BucketPolicy(t, awsRegion, bucketId)
+	statements := policyMap["Statement"].([]interface{})
+	statement := statements[1].(map[string]interface{})
+	principal := statement["Principal"].(map[string]interface{})
+	assert.Equal(s.T(), "cloudtrail.amazonaws.com", principal["Service"])
 
-			// Parse bucket policy into map to validate structure
-			var policyMap map[string]interface{}
-			err := json.Unmarshal([]byte(policy), &policyMap)
-			assert.NoError(t, err)
+	statement = statements[2].(map[string]interface{})
+	principal = statement["Principal"].(map[string]interface{})
+	assert.ElementsMatch(s.T(), []string{"cloudtrail.amazonaws.com", "config.amazonaws.com"}, principal["Service"])
 
-			statements := policyMap["Statement"].([]interface{})
-			statement := statements[1].(map[string]interface{})
-			principal := statement["Principal"].(map[string]interface{})
-			assert.Equal(t, "cloudtrail.amazonaws.com", principal["Service"])
+	s.DriftTest(component, stack, nil)
+}
 
-			statement = statements[2].(map[string]interface{})
-			principal = statement["Principal"].(map[string]interface{})
-			assert.ElementsMatch(t, []string{"cloudtrail.amazonaws.com", "config.amazonaws.com"}, principal["Service"])
-		})
-	})
+func (s *ComponentSuite) TestEnabledFlag() {
+	const component = "cloudtrail-bucket/disabled"
+	const stack = "default-test"
+	const awsRegion = "us-east-2"
+
+	s.VerifyEnabledFlag(component, stack, nil)
+}
+
+
+func TestRunSuite(t *testing.T) {
+	suite := new(ComponentSuite)
+	helper.Run(t, suite)
 }

@@ -1,10 +1,10 @@
 components:
   terraform:
-    cloudtrail-bucket/basic:
+    cloudtrail-bucket/disabled:
       metadata:
         component: target
       vars:
-        enabled: true
+        enabled: false
         name: "cloudtrail"
         noncurrent_version_expiration_days: 180
         noncurrent_version_transition_days: 30
