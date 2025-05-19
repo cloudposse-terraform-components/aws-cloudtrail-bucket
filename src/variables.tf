@@ -47,8 +47,13 @@ variable "versioning_enabled" {
 
 variable "sse_algorithm" {
   type        = string
-  description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
+  description = "The server-side encryption algorithm to use. Valid values are AES256, aws:kms, or aws:kms:dsse"
   default     = "AES256"
+
+  validation {
+    condition     = contains(["AES256", "aws:kms", "aws:kms:dsse"], var.sse_algorithm)
+    error_message = "sse_algorithm must be one of 'AES256', 'aws:kms', or 'aws:kms:dsse'."
+  }
 }
 
 variable "force_destroy" {
