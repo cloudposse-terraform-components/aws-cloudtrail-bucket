@@ -4,16 +4,16 @@ module "cloudtrail_s3_bucket" {
 
   acl                                = var.acl
   expiration_days                    = var.expiration_days
-  force_destroy                      = false
+  force_destroy                      = var.force_destroy
   glacier_transition_days            = var.glacier_transition_days
   lifecycle_rule_enabled             = var.lifecycle_rule_enabled
   noncurrent_version_expiration_days = var.noncurrent_version_expiration_days
   noncurrent_version_transition_days = var.noncurrent_version_transition_days
-  sse_algorithm                      = "AES256"
+  sse_algorithm                      = var.sse_algorithm
   standard_transition_days           = var.standard_transition_days
-  versioning_enabled                 = true
+  versioning_enabled                 = var.versioning_enabled
   create_access_log_bucket           = var.create_access_log_bucket
-  access_log_bucket_name             = var.create_access_log_bucket ? "" : var.access_log_bucket_name
+  access_log_bucket_name             = var.create_access_log_bucket ? null : var.access_log_bucket_name
 
   context = module.this.context
 }

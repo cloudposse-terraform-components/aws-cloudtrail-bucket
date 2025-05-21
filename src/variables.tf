@@ -39,6 +39,29 @@ variable "expiration_days" {
   description = "Number of days after which to expunge the objects"
 }
 
+variable "versioning_enabled" {
+  type        = bool
+  description = "A state of versioning. Versioning is a means of keeping multiple variants of an object in the same bucket"
+  default     = true
+}
+
+variable "sse_algorithm" {
+  type        = string
+  description = "The server-side encryption algorithm to use. Valid values are AES256, aws:kms, or aws:kms:dsse"
+  default     = "AES256"
+
+  validation {
+    condition     = contains(["AES256", "aws:kms", "aws:kms:dsse"], var.sse_algorithm)
+    error_message = "sse_algorithm must be one of 'AES256', 'aws:kms', or 'aws:kms:dsse'."
+  }
+}
+
+variable "force_destroy" {
+  type        = bool
+  description = "(Optional, Default:false ) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable"
+  default     = false
+}
+
 variable "create_access_log_bucket" {
   type        = bool
   default     = false
