@@ -1,6 +1,6 @@
 module "cloudtrail_s3_bucket" {
   source  = "cloudposse/cloudtrail-s3-bucket/aws"
-  version = "0.27.0"
+  version = "0.28.0"
 
   acl                                = var.acl
   expiration_days                    = var.expiration_days
