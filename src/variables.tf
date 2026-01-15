@@ -87,3 +87,12 @@ variable "acl" {
     EOT
   default     = "log-delivery-write"
 }
+
+variable "policy" {
+  type        = string
+  default     = ""
+  description = <<-EOT
+    A valid bucket policy JSON document. This policy will be merged with the
+    default CloudTrail bucket policies (AWSCloudTrailAclCheck and AWSCloudTrailWrite).
+    EOT
+}
