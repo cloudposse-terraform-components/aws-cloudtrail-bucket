@@ -106,3 +106,10 @@ variable "object_lock_configuration" {
   default     = null
   description = "A configuration for S3 object locking. With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
 }
+
+check "object_lock_requires_versioning" {
+  assert {
+    condition     = var.object_lock_configuration == null || var.versioning_enabled == true
+    error_message = "S3 Object Lock requires versioning_enabled = true. When object_lock_configuration is set, versioning_enabled must be true."
+  }
+}
