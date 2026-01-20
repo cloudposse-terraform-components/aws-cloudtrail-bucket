@@ -9,6 +9,7 @@ module "cloudtrail_s3_bucket" {
   lifecycle_rule_enabled             = var.lifecycle_rule_enabled
   noncurrent_version_expiration_days = var.noncurrent_version_expiration_days
   noncurrent_version_transition_days = var.noncurrent_version_transition_days
+  object_lock_configuration          = var.object_lock_configuration
   policy                             = var.policy
   sse_algorithm                      = var.sse_algorithm
   standard_transition_days           = var.standard_transition_days

@@ -31,6 +31,25 @@ components:
         expiration_days: 365
 ```
 
+### S3 Object Lock Configuration
+
+For PCI compliance, you can enable S3 Object Lock to store objects using a write-once-read-many (WORM) model.
+
+> **Important**: S3 Object Lock can only be enabled at bucket creation time. It cannot be added to existing buckets.
+
+```yaml
+components:
+  terraform:
+    cloudtrail-bucket:
+      vars:
+        enabled: true
+        name: "cloudtrail"
+        object_lock_configuration:
+          mode: "GOVERNANCE"  # Valid values: GOVERNANCE, COMPLIANCE
+          days: 365
+          years: null
+```
+
 <!-- prettier-ignore-start -->
 <!-- prettier-ignore-end -->
 
@@ -86,6 +105,7 @@ No resources.
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_noncurrent_version_expiration_days"></a> [noncurrent\_version\_expiration\_days](#input\_noncurrent\_version\_expiration\_days) | Specifies when noncurrent object versions expire | `number` | `90` | no |
 | <a name="input_noncurrent_version_transition_days"></a> [noncurrent\_version\_transition\_days](#input\_noncurrent\_version\_transition\_days) | Specifies when noncurrent object versions transition to a different storage tier | `number` | `30` | no |
+| <a name="input_object_lock_configuration"></a> [object\_lock\_configuration](#input\_object\_lock\_configuration) | A configuration for S3 object locking. With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br/>    mode  = string # Valid values are GOVERNANCE and COMPLIANCE.<br/>    days  = number<br/>    years = number<br/>  })</pre> | `null` | no |
 | <a name="input_policy"></a> [policy](#input\_policy) | A valid bucket policy JSON document. This policy will be merged with the<br/>default CloudTrail bucket policies (AWSCloudTrailAclCheck and AWSCloudTrailWrite). | `string` | `""` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region | `string` | n/a | yes |
