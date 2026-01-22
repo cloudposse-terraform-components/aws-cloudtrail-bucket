@@ -96,3 +96,33 @@ variable "policy" {
     default CloudTrail bucket policies (AWSCloudTrailAclCheck and AWSCloudTrailWrite).
     EOT
 }
+
+variable "object_lock_configuration" {
+  type = object({
+    mode  = string           # Valid values are GOVERNANCE and COMPLIANCE.
+    days  = optional(number) # Retention period in days. Specify either days or years, not both.
+    years = optional(number) # Retention period in years. Specify either days or years, not both.
+  })
+  default     = null
+  description = "A configuration for S3 object locking. With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
+
+  validation {
+    condition     = var.object_lock_configuration == null || contains(["GOVERNANCE", "COMPLIANCE"], var.object_lock_configuration.mode)
+    error_message = "object_lock_configuration.mode must be either 'GOVERNANCE' or 'COMPLIANCE'."
+  }
+
+  validation {
+    condition = var.object_lock_configuration == null || (
+      (var.object_lock_configuration.days != null && var.object_lock_configuration.years == null) ||
+      (var.object_lock_configuration.days == null && var.object_lock_configuration.years != null)
+    )
+    error_message = "object_lock_configuration requires exactly one of 'days' or 'years' to be set, not both and not neither."
+  }
+}
+
+check "object_lock_requires_versioning" {
+  assert {
+    condition     = var.object_lock_configuration == null || var.versioning_enabled == true
+    error_message = "S3 Object Lock requires versioning_enabled = true. When object_lock_configuration is set, versioning_enabled must be true."
+  }
+}
