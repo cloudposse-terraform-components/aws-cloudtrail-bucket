@@ -107,12 +107,12 @@ variable "object_lock_configuration" {
   description = "A configuration for S3 object locking. With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
 
   validation {
-    condition     = var.object_lock_configuration == null || contains(["GOVERNANCE", "COMPLIANCE"], var.object_lock_configuration.mode)
+    condition     = var.object_lock_configuration == null ? true : contains(["GOVERNANCE", "COMPLIANCE"], var.object_lock_configuration.mode)
     error_message = "object_lock_configuration.mode must be either 'GOVERNANCE' or 'COMPLIANCE'."
   }
 
   validation {
-    condition = var.object_lock_configuration == null || (
+    condition = var.object_lock_configuration == null ? true : (
       (var.object_lock_configuration.days != null && var.object_lock_configuration.years == null) ||
       (var.object_lock_configuration.days == null && var.object_lock_configuration.years != null)
     )
