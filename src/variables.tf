@@ -97,6 +97,12 @@ variable "policy" {
     EOT
 }
 
+variable "object_lock_enabled" {
+  type        = bool
+  default     = false
+  description = "Set to `true` to enable S3 Object Lock on the CloudTrail bucket without configuring a default retention rule, so objects are only protected when a retention period or legal hold is applied per object. Object Lock is also enabled implicitly when `object_lock_configuration` is set. Requires `versioning_enabled = true`."
+}
+
 variable "object_lock_configuration" {
   type = object({
     mode  = string           # Valid values are GOVERNANCE and COMPLIANCE.
@@ -122,7 +128,7 @@ variable "object_lock_configuration" {
 
 check "object_lock_requires_versioning" {
   assert {
-    condition     = var.object_lock_configuration == null || var.versioning_enabled == true
-    error_message = "S3 Object Lock requires versioning_enabled = true. When object_lock_configuration is set, versioning_enabled must be true."
+    condition     = (var.object_lock_configuration == null && var.object_lock_enabled == false) || var.versioning_enabled == true
+    error_message = "S3 Object Lock requires versioning_enabled = true. When object_lock_configuration is set or object_lock_enabled is true, versioning_enabled must be true."
   }
 }
