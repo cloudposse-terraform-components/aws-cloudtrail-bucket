@@ -75,7 +75,30 @@ components:
 
 For PCI compliance, you can enable S3 Object Lock to store objects using a write-once-read-many (WORM) model.
 
-> **Important**: S3 Object Lock can only be enabled at bucket creation time. It cannot be added to existing buckets.
+> **Important**: Terraform can only enable Object Lock when it creates the bucket. The `object_lock_enabled` attribute
+> on `aws_s3_bucket` forces replacement, so flipping it on a bucket Terraform already manages plans a destroy and
+> recreate. The S3 API itself does support enabling Object Lock on an existing versioned bucket
+> (`aws s3api put-object-lock-configuration`), so the way to adopt it is to make that call out of band first, then set
+> the variable so Terraform matches what is already there.
+
+Set `object_lock_enabled` to turn Object Lock on without a bucket-wide default retention rule. Objects are then
+protected only when a retention period or a legal hold is applied to them individually. This is usually what you want
+for a CloudTrail bucket, because a default retention period longer than `expiration_days` deadlocks the lifecycle
+rule — S3 cannot delete an object that is still under retention.
+
+```yaml
+components:
+  terraform:
+    cloudtrail-bucket:
+      vars:
+        enabled: true
+        name: "cloudtrail"
+        versioning_enabled: true
+        object_lock_enabled: true
+```
+
+Set `object_lock_configuration` instead to apply a default retention rule to every new object. Keep the retention
+period shorter than `expiration_days` so lifecycle expiration can still run.
 
 ```yaml
 components:
