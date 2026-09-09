@@ -1,6 +1,6 @@
 module "cloudtrail_s3_bucket" {
   source  = "cloudposse/cloudtrail-s3-bucket/aws"
-  version = "0.32.0"
+  version = "0.33.0"
 
   acl                                = var.acl
   expiration_days                    = var.expiration_days
@@ -9,6 +9,7 @@ module "cloudtrail_s3_bucket" {
   lifecycle_rule_enabled             = var.lifecycle_rule_enabled
   noncurrent_version_expiration_days = var.noncurrent_version_expiration_days
   noncurrent_version_transition_days = var.noncurrent_version_transition_days
+  object_lock_enabled                = var.object_lock_enabled
   object_lock_configuration          = var.object_lock_configuration
   policy                             = var.policy
   sse_algorithm                      = var.sse_algorithm
