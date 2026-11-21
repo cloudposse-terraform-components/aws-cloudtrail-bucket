@@ -13,6 +13,7 @@ module "cloudtrail_s3_bucket" {
   object_lock_configuration          = var.object_lock_configuration
   policy                             = var.policy
   sse_algorithm                      = var.sse_algorithm
+  kms_master_key_arn                 = var.kms_master_key_arn
   standard_transition_days           = var.standard_transition_days
   versioning_enabled                 = var.versioning_enabled
   create_access_log_bucket           = var.create_access_log_bucket
