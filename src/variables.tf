@@ -56,6 +56,18 @@ variable "sse_algorithm" {
   }
 }
 
+variable "kms_master_key_arn" {
+  type        = string
+  description = <<-EOT
+    The ARN of the AWS KMS key used for default SSE-KMS encryption of the bucket. Only used when `sse_algorithm` is `aws:kms`.
+    If empty while `sse_algorithm` is `aws:kms`, the AWS managed `aws/s3` key is used.
+    The key policy must allow `cloudtrail.amazonaws.com` to call `kms:GenerateDataKey*`.
+    The key also applies to the access log bucket when `create_access_log_bucket` is `true`; S3 server access log delivery
+    does not support SSE-KMS destination buckets, so use a separate access log bucket (`access_log_bucket_name`) in that case.
+  EOT
+  default     = ""
+}
+
 variable "force_destroy" {
   type        = bool
   description = "(Optional, Default:false ) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable"
